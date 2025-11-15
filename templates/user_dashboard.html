@@ -43,11 +43,15 @@
 
             {% if p.stock > 0 %}
                 {% if name %}
+                <!-- Logged-in user: direct add to cart -->
                 <form action="/add-to-cart/{{ p._id }}" method="POST">
                     <button class="buy-btn">Buy Now</button>
                 </form>
                 {% else %}
-                <a href="/login"><button class="buy-btn">Login to Buy</button></a>
+                <!-- Guest user: store pre-login cart and redirect to login -->
+                <form action="/add-to-cart/{{ p._id }}" method="POST">
+                    <button class="buy-btn">Login to Buy</button>
+                </form>
                 {% endif %}
             {% else %}
                 <button class="out-btn" disabled>Out of Stock</button>
