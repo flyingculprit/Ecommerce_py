@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order History</title>
+    <link rel="stylesheet" href="/static/order_history.css">
+</head>
+<body>
+<div class="container">
+    <div class="top-bar">
+        <h1>Order History</h1>
+        <a class="back-btn" href="/user-dashboard">← Back to Dashboard</a>
+    </div>
+
+    {% if orders|length == 0 %}
+        <p class="empty-msg">You have not placed any orders yet.</p>
+    {% else %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <h3>Order ID: {{ order._id }}</h3>
+                <p>Date: {{ order.date.strftime("%d-%m-%Y %H:%M") if order.date else "N/A" }}</p>
+                <p>Total: ₹{{ order.total }}</p>
+                <h4>Items:</h4>
+                <ul>
+                    {% for item in order["items"] %}
+    <li>{{ item["product"] }} × {{ item["qty"] }} - ₹{{ item["price"] }}</li>
+{% endfor %}
+
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>

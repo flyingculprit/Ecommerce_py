@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/admin_dashboard.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="top-bar">
+        <h1>Admin: {{ admin }}</h1>
+        <a class="logout" href="/logout">Logout</a>
+    </div>
+
+    <h2>Add Product</h2>
+
+    <form method="POST" action="/add-product" class="product-form">
+        <input type="text" name="name" placeholder="Product Name" required>
+        <input type="number" name="price" placeholder="Price" required>
+        <input type="number" name="stock" placeholder="Stock" required>
+        <input type="text" name="image" placeholder="Image URL" required>
+        <textarea name="description" placeholder="Description"></textarea>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <h2>Products</h2>
+
+    <div class="product-list">
+        {% for p in products %}
+        <div class="product-card">
+
+            {% if p.stock == 0 %}
+            <span class="out-badge">Out of Stock</span>
+            {% endif %}
+
+            <img src="{{ p.image }}">
+            <h3>{{ p.name }}</h3>
+
+            <p>₹{{ p.price }}</p>
+            <p><b>Stock:</b> {{ p.stock }}</p>
+
+            <p class="desc">{{ p.description }}</p>
+
+            <div class="button-row">
+                <a class="edit-btn" href="/edit/{{ p._id }}">Edit</a>
+
+                <form action="/delete/{{ p._id }}" method="POST">
+                    <button class="delete-btn">Delete</button>
+                </form>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+</body>
+</html>

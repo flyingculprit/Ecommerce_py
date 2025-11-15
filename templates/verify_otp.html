@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Verify OTP</title>
+<link rel="stylesheet" href="/static/otp.css">
+
+<div class="container">
+    <h2>OTP Verification</h2>
+    <p>Enter the 6-digit OTP sent to your email</p>
+
+<form method="POST" onsubmit="combineOTP()">
+    <div class="otp-box">
+        <input type="text" maxlength="1" class="otp-input" required>
+        <input type="text" maxlength="1" class="otp-input" required>
+        <input type="text" maxlength="1" class="otp-input" required>
+        <input type="text" maxlength="1" class="otp-input" required>
+        <input type="text" maxlength="1" class="otp-input" required>
+        <input type="text" maxlength="1" class="otp-input" required>
+    </div>
+
+    <!-- Hidden input that Flask will receive -->
+    <input type="hidden" name="otp" id="otp">
+
+    <button type="submit">Verify OTP</button>
+</form>
+
+</div>
+
+<script src="/static/otp.js"></script>

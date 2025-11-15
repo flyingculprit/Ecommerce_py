@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="/static/userdashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Welcome{% if name %}, {{ name }}{% endif %}</h1>
+        <div class="top-buttons">
+            {% if name %}
+                <a class="cart-btn" href="/cart">🛒 Cart</a>
+                <a class="order-history-btn" href="/order-history">📜 Order History</a>
+                <a class="logout" href="/logout">Logout</a>
+            {% else %}
+                <a class="login-btn" href="/login">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Section Title -->
+    <h2 class="section-title">Available Products</h2>
+
+    <!-- Product List -->
+    <div class="product-list">
+        {% for p in products %}
+        <div class="product-card">
+
+            {% if p.stock == 0 %}
+            <span class="out-badge">Out of Stock</span>
+            {% endif %}
+
+            <img src="{{ p.image }}" alt="{{ p.name }}">
+            <h3>{{ p.name }}</h3>
+            <p class="price">₹{{ p.price }}</p>
+            <p class="stock">Stock: {{ p.stock }}</p>
+            <p class="desc">{{ p.description }}</p>
+
+            {% if p.stock > 0 %}
+                {% if name %}
+                <form action="/add-to-cart/{{ p._id }}" method="POST">
+                    <button class="buy-btn">Buy Now</button>
+                </form>
+                {% else %}
+                <a href="/login"><button class="buy-btn">Login to Buy</button></a>
+                {% endif %}
+            {% else %}
+                <button class="out-btn" disabled>Out of Stock</button>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+</body>
+</html>

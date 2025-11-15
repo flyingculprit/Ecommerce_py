@@ -1,0 +1,61 @@
+/* USER SIGNUP PAGE */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+
+    background: url("https://i.pinimg.com/1200x/40/77/f9/4077f948ebe9e1ac6f150af10ea765f3.jpg") no-repeat center center/cover;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 320px;
+    padding: 45px;
+    border-radius: 15px;
+
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.25);
+
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    color: white;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+input {
+    width: 92%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: rgba(0,0,0,1);
+}
+
+a {
+    color: #fff;
+    font-weight: 600;
+}

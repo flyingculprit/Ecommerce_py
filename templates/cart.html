@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/static/cart.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h1>Your Cart</h1>
+        <a class="back-btn" href="/user-dashboard">← Continue Shopping</a>
+    </div>
+
+    <!-- Notification -->
+    <div id="alertContainer"></div>
+
+    <!-- Cart Items -->
+    <div class="cart-items">
+        {% if cart|length == 0 %}
+            <p class="empty-cart">Your cart is empty 😢</p>
+        {% endif %}
+        {% for item in cart %}
+        <div class="cart-card">
+            <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+            
+            <div class="info">
+                <h3>{{ item.product.name }}</h3>
+                <p class="price">₹{{ item.product.price }}</p>
+                
+                <div class="qty-box">
+                    <form action="/cart/decrease/{{ item.id }}" method="POST">
+                        <button class="qty-btn">−</button>
+                    </form>
+                    <span class="qty-number">{{ item.qty }}</span>
+                    <form action="/cart/increase/{{ item.id }}" method="POST">
+                        <button class="qty-btn">+</button>
+                    </form>
+                </div>
+            </div>
+
+            <form action="/remove/{{ item.id }}" method="POST">
+                <button class="delete-btn">🗑️</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Total & Checkout -->
+    {% if total > 0 %}
+    <div class="checkout-section">
+        <h2>Total: ₹{{ total }}</h2>
+        <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Modern Address & Phone Modal -->
+<div class="modal" id="checkoutModal">
+    <div class="modal-content">
+        <h3>Shipping Details</h3>
+        <p class="modal-subtext">Enter your shipping address and phone number</p>
+        <form id="checkoutForm">
+            <input type="text" name="address" placeholder="Address" required>
+            <input type="text" name="phone" placeholder="Phone Number" required>
+            <button type="submit" class="confirm-btn">Confirm Payment</button>
+        </form>
+        <button id="closeModal" class="cancel-btn">Cancel</button>
+    </div>
+</div>
+
+<script>
+// Show popup notifications
+function showAlert(msg, category){
+    const alertContainer = document.getElementById("alertContainer");
+    const alertBox = document.createElement("div");
+    alertBox.className = `alert ${category}`;
+    alertBox.innerText = msg;
+    alertContainer.appendChild(alertBox);
+
+    alertBox.classList.add('slide-in');
+    setTimeout(() => {
+        alertBox.classList.add('fade-out');
+        setTimeout(() => alertBox.remove(), 1000);
+    }, 3000);
+}
+
+// Modal Handling
+const checkoutBtn = document.getElementById("checkoutBtn");
+const modal = document.getElementById("checkoutModal");
+const closeModal = document.getElementById("closeModal");
+
+// Click checkout → check stock
+checkoutBtn.onclick = async () => {
+    const res = await fetch("/check-stock", { method: "POST" });
+    const data = await res.json();
+
+    if(data.success){
+        modal.style.display = "flex";
+    } else {
+        // Show all out-of-stock items
+        showAlert("Out of stock: " + data.out_of_stock.join(", "), "error");
+    }
+};
+
+closeModal.onclick = () => modal.style.display = "none";
+
+// Modal form submission
+document.getElementById("checkoutForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    const res = await fetch("/checkout", {
+        method: "POST",
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    });
+    const result = await res.json();
+
+    showAlert(result.msg, result.success ? "success" : "error");
+    if(result.success) setTimeout(() => window.location.href = "/user-dashboard", 1800);
+});
+</script>
+
+</body>
+</html>

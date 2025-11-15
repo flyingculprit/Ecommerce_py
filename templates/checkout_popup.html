@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Checkout</title>
+    <link rel="stylesheet" href="/static/cart.css">
+</head>
+<body>
+<div class="popup-overlay">
+    <div class="popup-box">
+        <h2>Confirm Your Order</h2>
+        <form action="/confirm-order" method="POST">
+            <label>Address:</label>
+            <textarea name="address" placeholder="Enter your full address" required></textarea>
+            <label>Phone Number:</label>
+            <input type="text" name="phone" placeholder="Enter your phone number" required>
+            <h3>Products:</h3>
+            <ul>
+                {% for item in cart %}
+                    <li>{{ item.product.name }} x {{ item.qty }} - ₹{{ item.product.price * item.qty }}</li>
+                {% endfor %}
+            </ul>
+            <h3>Total: ₹{{ total }}</h3>
+            <button type="submit" class="checkout-btn">Confirm Payment</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

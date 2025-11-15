@@ -1,0 +1,94 @@
+/* OTP VERIFICATION PAGE */
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+
+    background: linear-gradient(to bottom right, #1b1b1b, #2d2d2d);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Glass box */
+.container {
+    width: 380px;
+    padding: 40px;
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    text-align: center;
+    color: white;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+p {
+    margin-bottom: 25px;
+    font-size: 15px;
+    color: #dedede;
+}
+
+/* OTP box wrapper */
+.otp-box {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* OTP input fields */
+.otp-input {
+    width: 50px;
+    height: 55px;
+    border-radius: 10px;
+
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+
+    font-size: 22px;
+    color: white;
+    text-align: center;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: #ffffff;
+    background: rgba(255,255,255,0.25);
+}
+
+/* Submit button */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+input[type="hidden"] {
+    display: none;
+}
