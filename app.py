@@ -12,7 +12,7 @@ app.secret_key = "supersecretkey"
 # ============================
 # MONGO CONNECTION
 # ============================
-client = MongoClient("")
+client = MongoClient("mongodb+srv://projects_db_user:7OplfCEQzwTYtGVj@cluster0.9rnnjwt.mongodb.net/Ecommerce")
 db = client["Ecommerce"]
 
 users = db.user
@@ -26,8 +26,8 @@ cart = db.cart
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = "@gmail.com"
-app.config['MAIL_PASSWORD'] = ""
+app.config['MAIL_USERNAME'] = "hdaprojectofficial@gmail.com"
+app.config['MAIL_PASSWORD'] = "eigu bqix zthz bdye"
 
 mail = Mail(app)
 
@@ -267,12 +267,21 @@ def admin_login():
 # ============================
 # ADMIN DASHBOARD
 # ============================
+# ============================
+# ADMIN DASHBOARD
+# ============================
 @app.route('/admin-dashboard')
 def admin_dashboard():
     if "admin" not in session:
         return redirect('/admin-login')
+    
     all_products = list(products.find())
-    return render_template("admin_dashboard.html", products=all_products, admin=session["admin"])
+
+    # Sort: out-of-stock first
+    all_products_sorted = sorted(all_products, key=lambda x: x['stock'] > 0)
+
+    return render_template("admin_dashboard.html", products=all_products_sorted, admin=session["admin"])
+
 
 # ============================
 # ADD PRODUCT

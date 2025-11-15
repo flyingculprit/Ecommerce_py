@@ -104,3 +104,149 @@ body {
     text-decoration: none;
     border-radius: 6px;
 }
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    width: 260px;
+    height: 320px;
+    perspective: 1000px;
+    position: relative;
+}
+
+.content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    border-radius: 12px;
+}
+
+.card:hover .content {
+    transform: rotateY(180deg);
+}
+
+.front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Glow outline effect */
+.front .glow-outline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #ae77fa, 0 0 30px #ae77fa55, 0 0 45px #ae77fa33;
+    animation: glow 2.5s infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 15px #ae77fa, 0 0 30px #ae77fa55, 0 0 45px #ae77fa33; }
+    50% { box-shadow: 0 0 25px #ae77fa, 0 0 45px #ae77fa55, 0 0 60px #ae77fa33; }
+    100% { box-shadow: 0 0 15px #ae77fa, 0 0 30px #ae77fa55, 0 0 45px #ae77fa33; }
+}
+
+/* Front design */
+.front {
+    justify-content: flex-end;
+    color: white;
+    position: relative;
+}
+
+.front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.front-content {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.4);
+    z-index: 2;
+}
+
+/* Front price and stock badge */
+.front-price {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.out-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: red;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
+    z-index: 2;
+}
+
+/* Back design */
+.back {
+    transform: rotateY(180deg);
+    background: #151515;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; 
+}
+
+.back-content {
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 90%;
+}
+
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.edit-btn {
+    padding: 8px 12px;
+    background: orange;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.delete-btn {
+    padding: 8px 12px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    z-index: 2;
+}

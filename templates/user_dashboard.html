@@ -29,34 +29,52 @@
     <!-- Product List -->
     <div class="product-list">
         {% for p in products %}
-        <div class="product-card">
+        <div class="card">
+            <div class="content">
 
-            {% if p.stock == 0 %}
-            <span class="out-badge">Out of Stock</span>
-            {% endif %}
+                <!-- Front side -->
+                <div class="front">
+                    <div class="glow-outline"></div>
+                    <img src="{{ p.image }}" alt="{{ p.name }}">
 
-            <img src="{{ p.image }}" alt="{{ p.name }}">
-            <h3>{{ p.name }}</h3>
-            <p class="price">₹{{ p.price }}</p>
-            <p class="stock">Stock: {{ p.stock }}</p>
-            <p class="desc">{{ p.description }}</p>
+                    {% if p.stock == 0 %}
+                    <span class="out-badge">Out of Stock</span>
+                    {% endif %}
 
-            {% if p.stock > 0 %}
-                {% if name %}
-                <!-- Logged-in user: direct add to cart -->
-                <form action="/add-to-cart/{{ p._id }}" method="POST">
-                    <button class="buy-btn">Buy Now</button>
-                </form>
-                {% else %}
-                <!-- Guest user: store pre-login cart and redirect to login -->
-                <form action="/add-to-cart/{{ p._id }}" method="POST">
-                    <button class="buy-btn">Login to Buy</button>
-                </form>
-                {% endif %}
-            {% else %}
-                <button class="out-btn" disabled>Out of Stock</button>
-            {% endif %}
+                    <span class="front-price">₹{{ p.price }}</span>
 
+                    <div class="front-content">
+                        <h3>{{ p.name }}</h3>
+                    </div>
+                </div>
+
+                <!-- Back side -->
+                <div class="back">
+                    <div class="back-content">
+                        <!-- Description and Stock centered -->
+                        <p class="desc">{{ p.description }}</p>
+                        <p class="stock"><strong>Stock:</strong> {{ p.stock }}</p>
+
+                        <!-- Button slightly above bottom -->
+                        <div class="back-button">
+                            {% if p.stock > 0 %}
+                                {% if name %}
+                                <form action="/add-to-cart/{{ p._id }}" method="POST">
+                                    <button class="buy-btn">Buy Now</button>
+                                </form>
+                                {% else %}
+                                <form action="/add-to-cart/{{ p._id }}" method="POST">
+                                    <button class="buy-btn">Login to Buy</button>
+                                </form>
+                                {% endif %}
+                            {% else %}
+                                <button class="out-btn" disabled>Out of Stock</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
         {% endfor %}
     </div>

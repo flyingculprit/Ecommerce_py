@@ -9,7 +9,7 @@
 <div class="container">
 
     <div class="top-bar">
-        <h1>Admin: {{ admin }}</h1>
+        <h1>Welcome {{ admin }}</h1>
         <a class="logout" href="/logout">Logout</a>
     </div>
 
@@ -27,32 +27,46 @@
     <h2>Products</h2>
 
     <div class="product-list">
-        {% for p in products %}
-        <div class="product-card">
+    {% for p in products %}
+    <div class="card">
+        <div class="content">
 
-            {% if p.stock == 0 %}
-            <span class="out-badge">Out of Stock</span>
-            {% endif %}
+            <!-- Back side -->
+            <div class="back">
+                <div class="back-content">
+                    <p><strong>Stock:</strong> {{ p.stock }}</p>
+                    <p class="desc">{{ p.description }}</p>
 
-            <img src="{{ p.image }}">
-            <h3>{{ p.name }}</h3>
+                    <div class="button-row">
+                        <a class="edit-btn" href="/edit/{{ p._id }}">Edit</a>
+                        <form action="/delete/{{ p._id }}" method="POST">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-            <p>₹{{ p.price }}</p>
-            <p><b>Stock:</b> {{ p.stock }}</p>
+            <!-- Front side -->
+            <div class="front">
+                <div class="glow-outline"></div>
+                <img src="{{ p.image }}" alt="{{ p.name }}">
 
-            <p class="desc">{{ p.description }}</p>
+                {% if p.stock == 0 %}
+                <span class="out-badge">Out of Stock</span>
+                {% endif %}
 
-            <div class="button-row">
-                <a class="edit-btn" href="/edit/{{ p._id }}">Edit</a>
+                <span class="front-price">₹{{ p.price }}</span>
 
-                <form action="/delete/{{ p._id }}" method="POST">
-                    <button class="delete-btn">Delete</button>
-                </form>
+                <div class="front-content">
+                    <h3>{{ p.name }}</h3>
+                </div>
             </div>
 
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
+
 
 </div>
 
