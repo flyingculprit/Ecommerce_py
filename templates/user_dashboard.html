@@ -7,85 +7,123 @@
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <div class="navbar">
-        <div class="store-name">Sarathi Stores</div>
-        <div class="nav-links">
-            {% if name %}
-                <a href="/cart">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4903/4903482.png" alt="Cart" class="nav-icon white-icon">
-                </a>
-                <a href="/order-history">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3503/3503786.png" alt="History" class="nav-icon white-icon">
-                </a>
-                <a href="/logout">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4043/4043198.png" alt="Logout" class="nav-icon">
-                </a>
-            {% else %}
-                <a href="/login" class="login-btn">Login</a>
-            {% endif %}
-        </div>
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="store-name">Sarathi Stores</div>
+    <div class="nav-links">
+        {% if name %}
+            <a href="/cart">
+                <img src="https://cdn-icons-png.flaticon.com/512/4903/4903482.png" alt="Cart" class="nav-icon white-icon">
+            </a>
+            <a href="/order-history">
+                <img src="https://cdn-icons-png.flaticon.com/512/3503/3503786.png" alt="History" class="nav-icon white-icon">
+            </a>
+            <a href="/logout">
+                <img src="https://cdn-icons-png.flaticon.com/512/4043/4043198.png" alt="Logout" class="nav-icon">
+            </a>
+        {% else %}
+            <a href="/login" class="login-btn">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- HERO / WELCOME -->
+<div class="hero">
+    Welcome{% if name %}, {{ name }}{% endif %}
+</div>
+
+<div class="container">
+    <!-- Section Title -->
+    <h2 class="section-title">Available Products</h2>
+
+    <!-- Search Bar -->
+    <div class="search-bar-container">
+        <input type="text" id="searchInput" placeholder="Search for products..." />
     </div>
 
-    <!-- HERO / WELCOME -->
-    <div class="hero">
-        Welcome{% if name %}, {{ name }}{% endif %}
-    </div>
+    <!-- Product List -->
+    <div class="product-list" id="productList">
+        {% for p in products %}
+        <div class="card" data-name="{{ p.name | lower }}">
+            <div class="content">
 
-    <div class="container">
-        <!-- Section Title -->
-        <h2 class="section-title">Available Products</h2>
-
-        <!-- Product List -->
-        <div class="product-list">
-            {% for p in products %}
-            <div class="card">
-                <div class="content">
-
-                    <!-- Front side -->
-                    <div class="front">
-                        <div class="glow-outline"></div>
-                        <img src="{{ p.image }}" alt="{{ p.name }}">
-                        {% if p.stock == 0 %}
-                        <span class="out-badge">Out of Stock</span>
-                        {% endif %}
-                        <span class="front-price">₹{{ p.price }}</span>
-                        <div class="front-content">
-                            <h3>{{ p.name }}</h3>
-                        </div>
+                <!-- Front side -->
+                <div class="front">
+                    <div class="glow-outline"></div>
+                    <img src="{{ p.image }}" alt="{{ p.name }}">
+                    {% if p.stock == 0 %}
+                    <span class="out-badge">Out of Stock</span>
+                    {% endif %}
+                    <span class="front-price">₹{{ p.price }}</span>
+                    <div class="front-content">
+                        <h3>{{ p.name }}</h3>
                     </div>
-
-                    <!-- Back side -->
-                    <div class="back">
-                        <div class="back-content">
-                            <p class="desc">{{ p.description }}</p>
-                            <p class="stock"><strong>Stock:</strong> {{ p.stock }}</p>
-                        </div>
-
-                        <div class="back-button">
-                            {% if p.stock > 0 %}
-                                {% if name %}
-                                <form action="/add-to-cart/{{ p._id }}" method="POST">
-                                    <button class="buy-btn">Buy Now</button>
-                                </form>
-                                {% else %}
-                                <form action="/add-to-cart/{{ p._id }}" method="POST">
-                                    <button class="buy-btn">Login to Buy</button>
-                                </form>
-                                {% endif %}
-                            {% else %}
-                                <button class="out-btn" disabled>Out of Stock</button>
-                            {% endif %}
-                        </div>
-                    </div>
-
                 </div>
+
+                <!-- Back side -->
+                <div class="back">
+                    <div class="back-content">
+                        <p class="desc">{{ p.description }}</p>
+                        <p class="stock"><strong>Stock:</strong> {{ p.stock }}</p>
+                    </div>
+
+                    <div class="back-button">
+                        {% if p.stock > 0 %}
+                            {% if name %}
+                            <form action="/add-to-cart/{{ p._id }}" method="POST">
+                                <button class="buy-btn">Buy Now</button>
+                            </form>
+                            {% else %}
+                            <form action="/add-to-cart/{{ p._id }}" method="POST">
+                                <button class="buy-btn">Login to Buy</button>
+                            </form>
+                            {% endif %}
+                        {% else %}
+                            <button class="out-btn" disabled>Out of Stock</button>
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
     </div>
+</div>
 
+<script>
+// Advanced search logic
+const searchInput = document.getElementById("searchInput");
+const productList = document.getElementById("productList");
+const products = Array.from(productList.children);
 
+searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase().trim().split(" ");
+
+    products.forEach(card => {
+        const name = card.dataset.name;
+
+        // Priority score: more words matched = higher
+        let score = 0;
+        query.forEach(q => {
+            if(name.includes(q)) score++;
+        });
+        card.dataset.score = score;
+    });
+
+    // Sort by score descending
+    products.sort((a,b) => b.dataset.score - a.dataset.score);
+
+    // Append sorted cards to container
+    products.forEach(card => {
+        if(card.dataset.score > 0) {
+            productList.appendChild(card);
+            card.style.display = "inline-block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+});
+</script>
 
 </body>
 </html>

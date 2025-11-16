@@ -209,6 +209,9 @@ def check_stock():
 # ============================
 # CHECKOUT
 # ============================
+# ============================
+# CHECKOUT & SEND EMAIL BILL
+# ============================
 @app.route('/checkout', methods=['POST'])
 def checkout():
     if "user" not in session:
@@ -217,30 +220,91 @@ def checkout():
     data = request.get_json()
     address = data.get("address")
     phone = data.get("phone")
+    user_email = session["user"]
+    user_name = session.get("name")
 
-    user_items = list(cart.find({"user": session["user"]}))
+    user_items = list(cart.find({"user": user_email}))
+    if not user_items:
+        return jsonify({"success": False, "msg": "Your cart is empty!"})
+
     total = 0
     order_details = []
 
+    # Check stock & calculate total
     for item in user_items:
         product = products.find_one({"_id": ObjectId(item["product_id"])})
         if product["stock"] < item["qty"]:
             return jsonify({"success": False, "msg": f"{product['name']} is Out of Stock"})
         total += int(product["price"]) * item["qty"]
-        order_details.append({"product": product["name"], "qty": item["qty"], "price": product["price"]})
+        order_details.append({
+            "product": product["name"],
+            "qty": item["qty"],
+            "price": product["price"],
+            "subtotal": int(product["price"]) * item["qty"]
+        })
         products.update_one({"_id": product["_id"]}, {"$inc": {"stock": -item["qty"]}})
 
-    db.orders.insert_one({
-        "user": session["user"],
+    # Save order to DB
+    order_id = db.orders.insert_one({
+        "user": user_email,
         "items": order_details,
         "total": total,
         "address": address,
         "phone": phone,
         "date": datetime.now()
-    })
+    }).inserted_id
 
-    cart.delete_many({"user": session["user"]})
-    return jsonify({"success": True, "msg": "Payment Successful! Order Placed!"})
+    # Clear cart
+    cart.delete_many({"user": user_email})
+
+    # ---------------- EMAIL BILL ----------------
+    try:
+        msg = Message(
+            subject="Your Order Bill - Ecommerce",
+            sender="hdaprojectofficial@gmail.com",
+            recipients=[user_email]
+        )
+
+        # Build HTML bill
+        bill_html = f"""
+        <h2>Hi {user_name},</h2>
+        <p>Thank you for your purchase! Here is your bill:</p>
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; color: #000;">
+            <tr style="background-color: #ae77fa; color: #fff;">
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price (₹)</th>
+                <th>Subtotal (₹)</th>
+            </tr>
+        """
+        for item in order_details:
+            bill_html += f"""
+            <tr>
+                <td>{item['product']}</td>
+                <td>{item['qty']}</td>
+                <td>{item['price']}</td>
+                <td>{item['subtotal']}</td>
+            </tr>
+            """
+        bill_html += f"""
+            <tr style="font-weight:bold;">
+                <td colspan="3" style="text-align:right;">Total</td>
+                <td>₹{total}</td>
+            </tr>
+        </table>
+        <p><strong>Shipping Address:</strong> {address}</p>
+        <p><strong>Phone:</strong> {phone}</p>
+        <p>Order ID: {order_id}</p>
+        <p>We hope to see you again soon!</p>
+        """
+
+        msg.html = bill_html
+        mail.send(msg)
+    except Exception as e:
+        print("Email sending failed:", e)
+        # You can choose to continue without blocking user
+
+    return jsonify({"success": True, "msg": "Payment Successful! Order Placed! A bill has been sent to your email."})
 
 # ============================
 # ORDER HISTORY
