@@ -1,61 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="/static/userdashboard.css">
+    <title>Sarathi Stores - User Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/userdashboard.css">
 </head>
 <body>
 
-<div class="container">
-
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <h1>Welcome{% if name %}, {{ name }}{% endif %}</h1>
-        <div class="top-buttons">
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="store-name">Sarathi Stores</div>
+        <div class="nav-links">
             {% if name %}
-                <a class="cart-btn" href="/cart">🛒 Cart</a>
-                <a class="order-history-btn" href="/order-history">📜 Order History</a>
-                <a class="logout" href="/logout">Logout</a>
+                <a href="/cart">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4903/4903482.png" alt="Cart" class="nav-icon white-icon">
+                </a>
+                <a href="/order-history">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3503/3503786.png" alt="History" class="nav-icon white-icon">
+                </a>
+                <a href="/logout">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4043/4043198.png" alt="Logout" class="nav-icon">
+                </a>
             {% else %}
-                <a class="login-btn" href="/login">Login</a>
+                <a href="/login" class="login-btn">Login</a>
             {% endif %}
         </div>
     </div>
 
-    <!-- Section Title -->
-    <h2 class="section-title">Available Products</h2>
+    <!-- HERO / WELCOME -->
+    <div class="hero">
+        Welcome{% if name %}, {{ name }}{% endif %}
+    </div>
 
-    <!-- Product List -->
-    <div class="product-list">
-        {% for p in products %}
-        <div class="card">
-            <div class="content">
+    <div class="container">
+        <!-- Section Title -->
+        <h2 class="section-title">Available Products</h2>
 
-                <!-- Front side -->
-                <div class="front">
-                    <div class="glow-outline"></div>
-                    <img src="{{ p.image }}" alt="{{ p.name }}">
+        <!-- Product List -->
+        <div class="product-list">
+            {% for p in products %}
+            <div class="card">
+                <div class="content">
 
-                    {% if p.stock == 0 %}
-                    <span class="out-badge">Out of Stock</span>
-                    {% endif %}
-
-                    <span class="front-price">₹{{ p.price }}</span>
-
-                    <div class="front-content">
-                        <h3>{{ p.name }}</h3>
+                    <!-- Front side -->
+                    <div class="front">
+                        <div class="glow-outline"></div>
+                        <img src="{{ p.image }}" alt="{{ p.name }}">
+                        {% if p.stock == 0 %}
+                        <span class="out-badge">Out of Stock</span>
+                        {% endif %}
+                        <span class="front-price">₹{{ p.price }}</span>
+                        <div class="front-content">
+                            <h3>{{ p.name }}</h3>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Back side -->
-                <div class="back">
-                    <div class="back-content">
-                        <!-- Description and Stock centered -->
-                        <p class="desc">{{ p.description }}</p>
-                        <p class="stock"><strong>Stock:</strong> {{ p.stock }}</p>
+                    <!-- Back side -->
+                    <div class="back">
+                        <div class="back-content">
+                            <p class="desc">{{ p.description }}</p>
+                            <p class="stock"><strong>Stock:</strong> {{ p.stock }}</p>
+                        </div>
 
-                        <!-- Button slightly above bottom -->
                         <div class="back-button">
                             {% if p.stock > 0 %}
                                 {% if name %}
@@ -72,14 +78,14 @@
                             {% endif %}
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
-</div>
+
 
 </body>
 </html>

@@ -87,6 +87,9 @@ def verify_otp():
 # ============================
 # LOGIN
 # ============================
+# ============================
+# LOGIN
+# ============================
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
     error = None
@@ -103,7 +106,7 @@ def login_user():
             session["user"] = email
             session["name"] = user["name"]
 
-            # Check if pre-login product exists
+            # Check if user clicked Buy before login
             if 'pre_login_cart' in session:
                 product_id = session.pop('pre_login_cart')
                 product = products.find_one({"_id": ObjectId(product_id)})
@@ -118,10 +121,14 @@ def login_user():
                             "product_id": product_id,
                             "qty": 1
                         })
+                # Redirect to cart if coming from Buy
+                return redirect('/cart')
 
-            return redirect('/cart')  # redirect to cart after login
+            # Otherwise, normal login → dashboard
+            return redirect('/user-dashboard')
 
     return render_template("login.html", error=error)
+
 
 # ============================
 # USER DASHBOARD

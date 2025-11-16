@@ -1,9 +1,11 @@
+/* -------------------- GLOBAL -------------------- */
 body {
-    background: #f5f6fa;
-    padding: 20px;
+    margin: 0;
     font-family: 'Inter', sans-serif;
-    color: #333;
+    background: #121212;
+    color: #fff;
 }
+a { text-decoration: none; }
 
 .container {
     width: 95%;
@@ -11,69 +13,114 @@ body {
     margin: auto;
 }
 
-/* Top Bar */
-.top-bar {
+/* -------------------- NAVBAR -------------------- */
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    padding: 15px 0;
-    border-bottom: 2px solid #eee;
+    padding: 15px 30px;
+    background: #1f1f1f;
+    border-bottom: 2px solid #cf0eff;
 }
 
-.top-bar h1 {
+.navbar .store-name {
     font-size: 24px;
     font-weight: 700;
-    color: #222;
+    color: #ae77fa;
 }
 
-.top-buttons a {
-    margin-left: 10px;
-    text-decoration: none;
-    padding: 10px 15px;
-    border-radius: 8px;
+/* NAVBAR ICONS ONLY */
+.navbar .nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar .nav-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 10px;
+    background: #2a2a2a;
+    transition: 0.3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.navbar .nav-links a:hover {
+    background: #ae77fa;
+    transform: translateY(-2px);
+}
+
+.nav-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+/* Make cart and history icons white */
+.nav-icon.white-icon {
+    filter: brightness(0) invert(1);
+}
+
+/* LOGIN BUTTON */
+.navbar .nav-links .login-btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: #ae77fa;
+    color: #121212;
     font-weight: 500;
     transition: 0.3s;
 }
 
-.cart-btn { background: #28a745; color: white; }
-.cart-btn:hover { background: #218838; }
+.navbar .nav-links .login-btn:hover {
+    background: #8c5cd6;
+    transform: translateY(-2px);
+}
 
-.order-history-btn { background: #007BFF; color: white; }
-.order-history-btn:hover { background: #0056b3; }
+/* -------------------- HERO -------------------- */
+.hero {
+    margin-top: 50px;
+    padding: 190px;
+    background: url('https://cdn.dribbble.com/userupload/5581064/file/original-6dbc77506f97b7b50b12bd2ca6700042.jpg?resize=1600x1200') no-repeat center center;
+    background-size: cover;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 600;
+    text-shadow: 2px 2px 10px #000;
+}
 
-.logout { background: #dc3545; color: white; }
-.logout:hover { background: #c82333; }
-
-/* Section Title */
+/* -------------------- SECTION TITLE -------------------- */
 .section-title {
-    margin-top: 25px;
+    margin-top: 30px;
     margin-bottom: 15px;
     font-size: 22px;
     font-weight: 600;
-    color: #444;
-    border-left: 5px solid #007BFF;
+    color: #ae77fa;
+    border-left: 5px solid #ae77fa;
     padding-left: 10px;
 }
 
-/* Product List */
+/* -------------------- PRODUCT LIST -------------------- */
 .product-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 25px; /* spacing between cards */
+    gap: 25px;
     justify-content: flex-start;
 }
 
-/* Card */
+/* -------------------- CARD -------------------- */
 .card {
     width: 260px;
-    height: 360px; /* fix card height */
+    height: 360px;
     perspective: 1000px;
     display: inline-block;
     position: relative;
 }
 
-/* Content */
 .content {
     width: 100%;
     height: 100%;
@@ -87,19 +134,34 @@ body {
     transform: rotateY(180deg);
 }
 
-/* Front & Back */
+/* FRONT & BACK */
 .front, .back {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%; /* same height for all cards */
+    height: 100%;
     border-radius: 16px;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Glow outline effect */
+/* FRONT */
+.front {
+    z-index: 2; /* front on top */
+}
+
+.front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+}
+
 /* Glow outline effect */
 .front .glow-outline {
     position: absolute;
@@ -110,34 +172,14 @@ body {
     border-radius: 16px;
     box-shadow: 0 0 15px #ae77fa, 0 0 30px #ae77fa55, 0 0 45px #ae77fa33;
     animation: glow 2.5s infinite alternate;
-    pointer-events: none; /* don’t block clicks */
-    z-index: 2; /* make sure it’s above the image but below text */
+    pointer-events: none; /* allow clicks to pass through */
+    z-index: 2;
 }
 
-/* Keyframes for glowing */
 @keyframes glow {
     0% { box-shadow: 0 0 15px #ae77fa, 0 0 30px #ae77fa55, 0 0 45px #ae77fa33; }
     50% { box-shadow: 0 0 25px #ae77fa, 0 0 45px #ae77fa55, 0 0 60px #ae77fa33; }
     100% { box-shadow: 0 0 15px #ae77fa, 0 0 30px #ae77fa55, 0 0 45px #ae77fa33; }
-}
-
-
-/* Front */
-.front {
-    justify-content: flex-end;
-    color: white;
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    z-index: 2;
-}
-
-.front img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: inherit; /* make corners rounded */
 }
 
 .front-content {
@@ -146,7 +188,7 @@ body {
     width: 100%;
     text-align: center;
     padding: 10px;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.5);
     z-index: 3;
 }
 
@@ -174,30 +216,26 @@ body {
     z-index: 3;
 }
 
-/* Back design */
+/* BACK */
 .back {
     transform: rotateY(180deg);
-    background: #151515;
+    background: #1f1f1f;
     color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* description top, button bottom */
+    justify-content: space-between;
     align-items: center;
     padding: 15px 10px;
     border-radius: 16px;
     box-sizing: border-box;
+    z-index: 1; /* behind front until hover flip */
 }
 
-/* Back content */
 .back-content {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* description & stock at top */
     align-items: center;
     width: 100%;
     gap: 8px;
     text-align: center;
-    flex-grow: 1; /* ensure it expands to take available space */
 }
 
 .back-content .desc {
@@ -211,13 +249,11 @@ body {
     font-weight: 600;
 }
 
-/* Button always fixed at bottom */
 .back-button {
     width: 100%;
-    margin-top: auto; /* push button to bottom */
+    margin-top: auto;
 }
 
-/* Buy / Out-of-stock buttons */
 .buy-btn {
     width: 100%;
     padding: 10px;
@@ -229,7 +265,10 @@ body {
     font-weight: 600;
     transition: 0.3s;
 }
-.buy-btn:hover { background: #218838; }
+
+.buy-btn:hover {
+    background: #218838;
+}
 
 .out-btn {
     width: 100%;
@@ -241,8 +280,8 @@ body {
     cursor: not-allowed;
 }
 
-/* Responsive */
+/* -------------------- RESPONSIVE -------------------- */
 @media (max-width: 768px) {
     .product-list { justify-content: center; }
-    .top-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .navbar { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
