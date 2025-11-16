@@ -1,35 +1,110 @@
+/* Base */
 body {
-    font-family: Arial, sans-serif;
-    background: #fafafa;
+    font-family: 'Inter', sans-serif;
+    background: #121212;
+    color: #e0e0e0;
+    margin: 0;
     padding: 20px;
 }
 
-.container { width: 90%; margin: auto; }
+.container { max-width: 1100px; margin: auto; }
 
+/* Top Bar */
 .top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.top-bar h1 {
+    font-size: 28px;
+    font-weight: 700;
 }
 
 .back-btn {
-    background: black;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
+    background: #1f1f1f;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
     text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
 }
 
-.orders-list { display: flex; flex-direction: column; gap: 20px; }
+.back-btn:hover {
+    background: #333;
+}
 
+/* Empty Message */
+.empty-msg {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+    margin-top: 50px;
+}
+
+/* Orders List */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Order Card */
 .order-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 10px #ccc;
+    background: #1f1f1f;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.order-card h3 { margin: 0 0 8px 0; }
-.order-card ul { padding-left: 20px; }
-.empty-msg { text-align: center; font-size: 18px; color: #555; margin-top: 50px; }
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.order-card h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ae77fa;
+}
+
+.order-header p {
+    font-size: 14px;
+    color: #bbb;
+}
+
+.total {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #4caf50;
+}
+
+.order-card h4 {
+    margin-bottom: 6px;
+    font-size: 16px;
+    color: #fff;
+}
+
+.order-card ul {
+    padding-left: 20px;
+}
+
+.order-card li {
+    padding: 6px 0;
+    border-bottom: 1px solid #333;
+}
+
+.order-card li:last-child {
+    border-bottom: none;
+}

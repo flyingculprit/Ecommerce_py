@@ -3,6 +3,92 @@
 <head>
     <title>Edit Product</title>
     <link rel="stylesheet" href="/static/admin_dashboard.css">
+    <style>
+        /* Container */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #121212;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            margin: 40px auto;
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ae77fa;
+        }
+
+        /* Form Inputs */
+        .product-form input,
+        .product-form textarea {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .product-form input:focus,
+        .product-form textarea:focus {
+            border-color: #ae77fa;
+            outline: none;
+            box-shadow: 0 0 8px #ae77fa55;
+        }
+
+        .product-form textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        /* Buttons */
+        .product-form button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            background: #ae77fa;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .product-form button:hover {
+            background: #955ed5;
+        }
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            background: #333;
+            color: #fff;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #555;
+        }
+
+    </style>
 </head>
 <body>
 
@@ -10,17 +96,16 @@
     <h1>Edit Product</h1>
 
     <form method="POST" action="/update-product/{{ product._id }}" class="product-form">
-
-        <input type="text" name="name" value="{{ product.name }}" required>
-        <input type="number" name="price" value="{{ product.price }}" required>
-        <input type="number" name="stock" value="{{ product.stock }}" required>
-        <input type="text" name="image" value="{{ product.image }}" required>
-        <textarea name="description">{{ product.description }}</textarea>
+        <input type="text" name="name" value="{{ product.name }}" placeholder="Product Name" required>
+        <input type="number" name="price" value="{{ product.price }}" placeholder="Price" required>
+        <input type="number" name="stock" value="{{ product.stock }}" placeholder="Stock" required>
+        <input type="text" name="image" value="{{ product.image }}" placeholder="Image URL" required>
+        <textarea name="description" placeholder="Description">{{ product.description }}</textarea>
 
         <button type="submit">Update Product</button>
     </form>
 
-    <a class="back-btn" href="/admin-dashboard">Back</a>
+    <a class="back-btn" href="/admin-dashboard">← Back to Dashboard</a>
 </div>
 
 </body>

@@ -3,6 +3,7 @@
 <head>
     <title>Order History</title>
     <link rel="stylesheet" href="/static/order_history.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="container">
@@ -17,15 +18,16 @@
         <div class="orders-list">
             {% for order in orders %}
             <div class="order-card">
-                <h3>Order ID: {{ order._id }}</h3>
-                <p>Date: {{ order.date.strftime("%d-%m-%Y %H:%M") if order.date else "N/A" }}</p>
-                <p>Total: ₹{{ order.total }}</p>
+                <div class="order-header">
+                    <h3>Order ID: {{ order._id }}</h3>
+                    <p>{{ order.date.strftime("%d-%m-%Y %H:%M") if order.date else "N/A" }}</p>
+                </div>
+                <p class="total">Total: ₹{{ order.total }}</p>
                 <h4>Items:</h4>
                 <ul>
                     {% for item in order["items"] %}
-    <li>{{ item["product"] }} × {{ item["qty"] }} - ₹{{ item["price"] }}</li>
-{% endfor %}
-
+                        <li>{{ item["product"] }} × {{ item["qty"] }} - ₹{{ item["price"] }}</li>
+                    {% endfor %}
                 </ul>
             </div>
             {% endfor %}
