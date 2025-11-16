@@ -12,7 +12,7 @@ app.secret_key = "supersecretkey"
 # ============================
 # MONGO CONNECTION
 # ============================
-client = MongoClient("mongodb+srv://projects_db_user:7OplfCEQzwTYtGVj@cluster0.9rnnjwt.mongodb.net/Ecommerce")
+client = MongoClient("")
 db = client["Ecommerce"]
 
 users = db.user
@@ -26,8 +26,8 @@ cart = db.cart
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = "hdaprojectofficial@gmail.com"
-app.config['MAIL_PASSWORD'] = "eigu bqix zthz bdye"
+app.config['MAIL_USERNAME'] = "@gmail.com"
+app.config['MAIL_PASSWORD'] = ""
 
 mail = Mail(app)
 
@@ -54,7 +54,7 @@ def signup():
         otp = random.randint(100000, 999999)
         session["temp"] = {"name": name, "email": email, "password": password, "otp": otp}
 
-        msg = Message("OTP Verification", sender="hdaprojectofficial@gmail.com", recipients=[email])
+        msg = Message("OTP Verification", sender="@gmail.com", recipients=[email])
         msg.body = f"Your OTP: {otp}"
         mail.send(msg)
 
@@ -261,7 +261,7 @@ def checkout():
     try:
         msg = Message(
             subject="Your Order Bill - Ecommerce",
-            sender="hdaprojectofficial@gmail.com",
+            sender="@gmail.com",
             recipients=[user_email]
         )
 
