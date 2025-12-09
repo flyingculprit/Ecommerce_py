@@ -12,13 +12,14 @@ app.secret_key = "supersecretkey"
 # ============================
 # MONGO CONNECTION
 # ============================
-client = MongoClient("")
+client = MongoClient("mongodb+srv://projects_db_user:7OplfCEQzwTYtGVj@cluster0.9rnnjwt.mongodb.net/Ecommerce")
 db = client["Ecommerce"]
 
 users = db.user
 admins = db.admin
 products = db.products
 cart = db.cart
+wishlist = db.wishlist
 
 # ============================
 # EMAIL OTP
@@ -26,8 +27,8 @@ cart = db.cart
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = "@gmail.com"
-app.config['MAIL_PASSWORD'] = ""
+app.config['MAIL_USERNAME'] = "hdaprojectofficial@gmail.com"
+app.config['MAIL_PASSWORD'] = "eigu bqix zthz bdye"
 
 mail = Mail(app)
 
@@ -54,7 +55,7 @@ def signup():
         otp = random.randint(100000, 999999)
         session["temp"] = {"name": name, "email": email, "password": password, "otp": otp}
 
-        msg = Message("OTP Verification", sender="@gmail.com", recipients=[email])
+        msg = Message("OTP Verification", sender="hdaprojectofficial@gmail.com", recipients=[email])
         msg.body = f"Your OTP: {otp}"
         mail.send(msg)
 
@@ -229,22 +230,31 @@ def checkout():
 
     total = 0
     order_details = []
+    out_of_stock = []
 
-    # Check stock & calculate total
+    # Check stock first
     for item in user_items:
         product = products.find_one({"_id": ObjectId(item["product_id"])})
-        if product["stock"] < item["qty"]:
-            return jsonify({"success": False, "msg": f"{product['name']} is Out of Stock"})
-        total += int(product["price"]) * item["qty"]
+        if not product or product["stock"] < item["qty"]:
+            out_of_stock.append(product["name"] if product else "Unknown Product")
+
+    if out_of_stock:
+        return jsonify({"success": False, "msg": f"Cannot purchase: {', '.join(out_of_stock)} Out of Stock"})
+
+    # Deduct stock and calculate total
+    for item in user_items:
+        product = products.find_one({"_id": ObjectId(item["product_id"])})
+        products.update_one({"_id": product["_id"], "stock": {"$gte": item["qty"]}}, {"$inc": {"stock": -item["qty"]}})
+        subtotal = int(product["price"]) * item["qty"]
+        total += subtotal
         order_details.append({
             "product": product["name"],
             "qty": item["qty"],
             "price": product["price"],
-            "subtotal": int(product["price"]) * item["qty"]
+            "subtotal": subtotal
         })
-        products.update_one({"_id": product["_id"]}, {"$inc": {"stock": -item["qty"]}})
 
-    # Save order to DB
+    # Save order
     order_id = db.orders.insert_one({
         "user": user_email,
         "items": order_details,
@@ -257,11 +267,15 @@ def checkout():
     # Clear cart
     cart.delete_many({"user": user_email})
 
+    # Email sending (existing code)...
+
+
+
     # ---------------- EMAIL BILL ----------------
     try:
         msg = Message(
             subject="Your Order Bill - Ecommerce",
-            sender="@gmail.com",
+            sender="hdaprojectofficial@gmail.com",
             recipients=[user_email]
         )
 
@@ -304,7 +318,131 @@ def checkout():
         print("Email sending failed:", e)
         # You can choose to continue without blocking user
 
-    return jsonify({"success": True, "msg": "Payment Successful! Order Placed! A bill has been sent to your email."})
+        return jsonify({"success": True, "msg": "Payment Successful! Order Placed! A bill has been sent to your email."})
+
+@app.route('/final-pay', methods=['POST'])
+def final_pay():
+    if "user" not in session:
+        return jsonify({"success": False, "msg": "Login required"}), 401
+
+    try:
+        data = request.get_json()
+        address = data.get('address')
+        phone = data.get('phone')
+        payment_method = data.get('payment_method', 'UNKNOWN')
+
+        # Basic validation
+        if not address or not phone:
+            return jsonify({"success": False, "msg": "Address and phone required"}), 400
+
+        user_email = session["user"]
+        user_name = session.get("name")
+
+        # Fetch cart items
+        user_items = list(cart.find({"user": user_email}))
+        if not user_items:
+            return jsonify({"success": False, "msg": "Your cart is empty"}), 400
+
+        order_items = []
+        total = 0
+        out_of_stock = []
+
+        # Check stock for all items
+        for item in user_items:
+            prod = products.find_one({"_id": ObjectId(item["product_id"])})
+            if not prod:
+                out_of_stock.append("Unknown Product")
+            elif prod.get("stock", 0) < item.get("qty", 0):
+                out_of_stock.append(prod.get("name"))
+
+        if out_of_stock:
+            return jsonify({"success": False, "msg": f"Cannot purchase: {', '.join(out_of_stock)} out of stock"}), 400
+
+        # Deduct stock and calculate total
+        for item in user_items:
+            prod = products.find_one({"_id": ObjectId(item["product_id"])})
+            qty = item.get("qty", 1)
+            price = int(prod.get("price", 0))
+            subtotal = price * qty
+            total += subtotal
+
+            products.update_one(
+                {"_id": prod["_id"], "stock": {"$gte": qty}},
+                {"$inc": {"stock": -qty}}
+            )
+
+            order_items.append({
+                "product": prod.get("name"),
+                "qty": qty,
+                "price": price,
+                "subtotal": subtotal
+            })
+
+        # Save order to DB
+        order_id = db.orders.insert_one({
+            "user": user_email,
+            "items": order_items,
+            "total": total,
+            "address": address,
+            "phone": phone,
+            "payment_method": payment_method,
+            "date": datetime.now()
+        }).inserted_id
+
+        # Clear cart
+        cart.delete_many({"user": user_email})
+
+        # ---------------- EMAIL BILL ----------------
+        try:
+            msg = Message(
+                subject="Your Order Bill - Ecommerce",
+                sender="hdaprojectofficial@gmail.com",
+                recipients=[user_email]
+            )
+
+            bill_html = f"""
+            <h2>Hi {user_name},</h2>
+            <p>Thank you for your purchase! Here is your bill:</p>
+            <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; color: #000;">
+                <tr style="background-color: #ae77fa; color: #fff;">
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price (₹)</th>
+                    <th>Subtotal (₹)</th>
+                </tr>
+            """
+            for item in order_items:
+                bill_html += f"""
+                <tr>
+                    <td>{item['product']}</td>
+                    <td>{item['qty']}</td>
+                    <td>{item['price']}</td>
+                    <td>{item['subtotal']}</td>
+                </tr>
+                """
+            bill_html += f"""
+                <tr style="font-weight:bold;">
+                    <td colspan="3" style="text-align:right;">Total</td>
+                    <td>₹{total}</td>
+                </tr>
+            </table>
+            <p><strong>Shipping Address:</strong> {address}</p>
+            <p><strong>Phone:</strong> {phone}</p>
+            <p><strong>Payment Method:</strong> {payment_method}</p>
+            <p>Order ID: {order_id}</p>
+            <p>We hope to see you again soon!</p>
+            """
+
+            msg.html = bill_html
+            mail.send(msg)
+        except Exception as e:
+            print("Email sending failed:", e)
+
+        return jsonify({"success": True, "msg": "Payment successful! Order placed and bill sent to email."})
+
+    except Exception as e:
+        print("final-pay error:", e)
+        return jsonify({"success": False, "msg": "Server error"}), 500
 
 # ============================
 # ORDER HISTORY
@@ -316,6 +454,67 @@ def order_history():
 
     user_orders = list(db.orders.find({"user": session["user"]}).sort("date", -1))
     return render_template("order_history.html", orders=user_orders, email=session["user"])
+
+# ============================
+# ADD TO WISHLIST
+# ============================
+@app.route('/add-to-wishlist/<id>', methods=['POST'])
+def add_to_wishlist(id):
+    if "user" not in session:
+        return redirect('/login')
+
+    existing = wishlist.find_one({"user": session["user"], "product_id": id})
+    if not existing:
+        wishlist.insert_one({"user": session["user"], "product_id": id})
+
+    return redirect('/wishlist')
+
+# ============================
+# WISHLIST PAGE
+# ============================
+@app.route('/wishlist')
+def show_wishlist():
+    if "user" not in session:
+        return redirect('/login')
+
+    user_wishlist = list(wishlist.find({"user": session["user"]}))
+    items = []
+    for w in user_wishlist:
+        prod = products.find_one({"_id": ObjectId(w["product_id"])})
+        if prod:
+            items.append({"id": w["_id"], "product": prod})
+
+    return render_template("wishlist.html", wishlist=items, name=session.get("name"))
+
+# ============================
+# REMOVE FROM WISHLIST
+# ============================
+@app.route('/remove-wishlist/<id>', methods=['POST'])
+def remove_wishlist(id):
+    wishlist.delete_one({"_id": ObjectId(id)})
+    return redirect('/wishlist')
+
+# ============================
+# ADD TO CART FROM WISHLIST
+# ============================
+@app.route('/wishlist/add-to-cart/<id>', methods=['POST'])
+def wishlist_add_to_cart(id):
+    if "user" not in session:
+        return redirect('/login')
+
+    item = wishlist.find_one({"_id": ObjectId(id)})
+    if not item:
+        return redirect('/wishlist')
+
+    product_id = item["product_id"]
+    existing = cart.find_one({"user": session["user"], "product_id": product_id})
+    if existing:
+        cart.update_one({"_id": existing["_id"]}, {"$inc": {"qty": 1}})
+    else:
+        cart.insert_one({"user": session["user"], "product_id": product_id, "qty": 1})
+
+    wishlist.delete_one({"_id": ObjectId(id)})  # remove from wishlist after adding to cart
+    return redirect('/cart')
 
 # ============================
 # ADMIN LOGIN
@@ -334,6 +533,7 @@ def admin_login():
         return "Wrong Password"
 
     return render_template("admin_login.html")
+
 
 # ============================
 # ADMIN DASHBOARD
@@ -419,6 +619,20 @@ def decrease_qty(id):
     else:
         cart.update_one({"_id": ObjectId(id)}, {"$inc": {"qty": -1}})
     return redirect('/cart')
+
+
+# ============================
+# ADMIN - VIEW ALL ORDER HISTORY
+# ============================
+@app.route('/admin-order-history')
+def admin_order_history():
+    if "admin" not in session:
+        return redirect('/admin-login')
+
+    # Fetch ALL orders from DB (sorted by newest first)
+    all_orders = list(db.orders.find().sort("date", -1))
+
+    return render_template("admin_order_history.html", orders=all_orders)
 
 # ============================
 # LOGOUT

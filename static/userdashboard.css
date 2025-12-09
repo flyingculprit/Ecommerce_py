@@ -312,3 +312,72 @@ a { text-decoration: none; }
 #searchInput:focus {
     border-color: #28a745;
 }
+
+/* FOOTER */
+.footer {
+    background: #111;
+    padding: 30px 0;
+    margin-top: 60px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.footer-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 15px;
+}
+
+.footer-links a {
+    color: #bbb;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: white;
+}
+
+.feedback-btn {
+    padding: 6px 14px;
+    background: #ffcc00;
+    color: #000 !important;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.feedback-btn:hover {
+    background: #e6b800;
+}
+
+.copy {
+    font-size: 12px;
+    color: #777;
+    margin-top: 10px;
+}
+.wishlist-btn {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #ff4d6d;
+    border: none;
+    color: white;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.wishlist-btn:hover {
+    background: #e63950;
+}

@@ -18,6 +18,9 @@
             <a href="/order-history">
                 <img src="https://cdn-icons-png.flaticon.com/512/3503/3503786.png" alt="History" class="nav-icon white-icon">
             </a>
+            <a href="/wishlist" title="Wishlist">
+                <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Wishlist" class="nav-icon white-icon">
+            </a>
             <a href="/logout">
                 <img src="https://cdn-icons-png.flaticon.com/512/4043/4043198.png" alt="Logout" class="nav-icon">
             </a>
@@ -44,37 +47,43 @@
     <!-- Product List -->
     <div class="product-list" id="productList">
         {% for p in products %}
-        <div class="card" data-name="{{ p.name | lower }}">
+        <div class="card" data-name="{{ p.get('name','') | lower }}">
             <div class="content">
 
                 <!-- Front side -->
                 <div class="front">
                     <div class="glow-outline"></div>
-                    <img src="{{ p.image }}" alt="{{ p.name }}">
-                    {% if p.stock == 0 %}
+                    <img src="{{ p.get('image','') }}" alt="{{ p.get('name','') }}">
+                    {% if p.get('stock',0) == 0 %}
                     <span class="out-badge">Out of Stock</span>
                     {% endif %}
-                    <span class="front-price">₹{{ p.price }}</span>
+                    <span class="front-price">₹{{ p.get('price',0) }}</span>
                     <div class="front-content">
-                        <h3>{{ p.name }}</h3>
+                        <h3>{{ p.get('name','Unknown') }}</h3>
                     </div>
                 </div>
 
                 <!-- Back side -->
                 <div class="back">
                     <div class="back-content">
-                        <p class="desc">{{ p.description }}</p>
-                        <p class="stock"><strong>Stock:</strong> {{ p.stock }}</p>
+                        <p class="desc">{{ p.get('description','') }}</p>
+                        <p class="stock"><strong>Stock:</strong> {{ p.get('stock',0) }}</p>
                     </div>
 
                     <div class="back-button">
-                        {% if p.stock > 0 %}
+                        <!-- Wishlist: ALWAYS allowed -->
+                        <form action="/add-to-wishlist/{{ p.get('_id') }}" method="POST">
+                            <button class="wishlist-btn">❤️ Add to Wishlist</button>
+                        </form>
+
+                        <!-- Buy Now / Login to Buy (ONLY if stock > 0) -->
+                        {% if p.get('stock',0) > 0 %}
                             {% if name %}
-                            <form action="/add-to-cart/{{ p._id }}" method="POST">
+                            <form action="/add-to-cart/{{ p.get('_id') }}" method="POST">
                                 <button class="buy-btn">Buy Now</button>
                             </form>
                             {% else %}
-                            <form action="/add-to-cart/{{ p._id }}" method="POST">
+                            <form action="/add-to-cart/{{ p.get('_id') }}" method="POST">
                                 <button class="buy-btn">Login to Buy</button>
                             </form>
                             {% endif %}
@@ -82,6 +91,7 @@
                             <button class="out-btn" disabled>Out of Stock</button>
                         {% endif %}
                     </div>
+
                 </div>
 
             </div>
@@ -89,6 +99,23 @@
         {% endfor %}
     </div>
 </div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <p class="footer-title">Sarathi Stores</p>
+
+        <div class="footer-links">
+            <a href="/user-dashboard">About</a>
+            <a href="/order-history">Orders</a>
+            <a href="/cart">Cart</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScLMQblcItAGYoFChPUvtLq0xgadUuTQnVIrNCWSOblsYdYiw/viewform?pli=1&pli=1" target="_blank"
+               class="feedback-btn">Feedback</a>
+        </div>
+
+        <p class="copy">© 2025 Sarathi Stores. All Rights Reserved.</p>
+    </div>
+</footer>
 
 <script>
 // Advanced search logic

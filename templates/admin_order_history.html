@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Orders - Admin</title>
+    <link rel="stylesheet" href="/static/order_history.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+
+    <div class="top-bar">
+        <h1>All Orders</h1>
+        <a class="back-btn" href="/admin-dashboard">← Back to Admin Dashboard</a>
+    </div>
+
+    {% if orders|length == 0 %}
+        <p class="empty-msg">No orders have been placed yet.</p>
+    {% else %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+
+                <div class="order-header">
+                    <h3>Order ID: {{ order._id }}</h3>
+                    <p>{{ order.date.strftime("%d-%m-%Y %H:%M") if order.date else "N/A" }}</p>
+                </div>
+
+                <p class="total">Total: ₹{{ order.total }}</p>
+
+                <p><strong>User:</strong> {{ order.user }}</p>
+                <p><strong>Phone:</strong> {{ order.phone }}</p>
+                <p><strong>Address:</strong> {{ order.address }}</p>
+
+                <h4>Items:</h4>
+                <ul>
+    {% for item in order["items"] %}
+        <li>{{ item["product"] }} × {{ item["qty"] }} — ₹{{ item["price"] }}</li>
+    {% endfor %}
+</ul>
+
+
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>

@@ -2,23 +2,20 @@
 <html>
 <head>
     <title>Your Cart</title>
-    <link rel="stylesheet" href="/static/cart.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/cart.css">
 </head>
 <body>
 
 <div class="container">
-
-    <!-- Top Bar -->
     <div class="top-bar">
         <h1>Your Cart</h1>
         <a class="back-btn" href="/user-dashboard">← Continue Shopping</a>
     </div>
 
-    <!-- Notification -->
     <div id="alertContainer"></div>
 
-    <!-- Cart Items -->
     <div class="cart-items">
         {% if cart|length == 0 %}
             <p class="empty-cart">Your cart is empty 😢</p>
@@ -26,106 +23,259 @@
         {% for item in cart %}
         <div class="cart-card">
             <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
-            
             <div class="info">
                 <h3>{{ item.product.name }}</h3>
                 <p class="price">₹{{ item.product.price }}</p>
-                
                 <div class="qty-box">
-                    <form action="/cart/decrease/{{ item.id }}" method="POST">
+                    <form action="/cart/decrease/{{ item.id }}" method="POST" style="display:inline;">
                         <button class="qty-btn">−</button>
                     </form>
                     <span class="qty-number">{{ item.qty }}</span>
-                    <form action="/cart/increase/{{ item.id }}" method="POST">
+                    <form action="/cart/increase/{{ item.id }}" method="POST" style="display:inline;">
                         <button class="qty-btn">+</button>
                     </form>
                 </div>
             </div>
-
-            <form action="/remove/{{ item.id }}" method="POST">
+            <form action="/remove/{{ item.id }}" method="POST" style="margin-left:12px;">
                 <button class="delete-btn">🗑️</button>
             </form>
         </div>
         {% endfor %}
     </div>
 
-    <!-- Total & Checkout -->
     {% if total > 0 %}
     <div class="checkout-section">
         <h2>Total: ₹{{ total }}</h2>
         <button class="checkout-btn" id="checkoutBtn">Checkout</button>
     </div>
     {% endif %}
-
 </div>
 
-<!-- Modern Address & Phone Modal -->
-<div class="modal" id="checkoutModal">
-    <div class="modal-content">
-        <h3>Shipping Details</h3>
-        <p class="modal-subtext">Enter your shipping address and phone number</p>
-        <form id="checkoutForm">
-            <input type="text" name="address" placeholder="Address" required>
-            <input type="text" name="phone" placeholder="Phone Number" required>
-            <button type="submit" class="confirm-btn">Confirm Payment</button>
-        </form>
-        <button id="closeModal" class="cancel-btn">Cancel</button>
+<!-- ADDRESS MODAL -->
+<div class="modal" id="addressModal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <button class="close-btn" id="addressClose">✖</button>
+    <h3>Shipping Details</h3>
+    <p class="modal-subtext">Enter address & phone</p>
+    <form id="addressForm">
+      <input type="text" name="address" id="addressInput" placeholder="Address" required>
+      <input type="text" name="phone" id="phoneInput" placeholder="Phone Number" required>
+      <button type="submit" class="confirm-btn" id="addressNextBtn">Next</button>
+    </form>
+    <button class="cancel-btn" id="addressCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- PAYMENT CHOICE MODAL -->
+<div class="modal" id="paymentChoiceModal">
+  <div class="modal-content">
+    <button class="close-btn" id="payChoiceClose">✖</button>
+    <h3>Select Payment Method</h3>
+    <div class="payment-options">
+      <button class="pay-option" id="payUPI">UPI</button>
+      <button class="pay-option" id="payCARD">Card</button>
     </div>
+    <button class="cancel-btn" id="backToAddress">Back</button>
+  </div>
+</div>
+
+<!-- UPI MODAL -->
+<div class="modal" id="upiModal">
+  <div class="modal-content">
+    <button class="close-btn" id="upiClose">✖</button>
+    <h3>UPI Payment</h3>
+    <!-- put your QR at static/qr.png or change src -->
+    <img src="/static/qr.png" alt="QR" class="qr-image" id="qrImage">
+    <p>Scan the QR and click <strong>Paid</strong> after you complete payment.</p>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:8px;">
+      <button class="confirm-btn" id="upiPaidBtn">Paid</button>
+      <button class="cancel-btn" id="upiBackBtn">Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARD MODAL -->
+<div class="modal" id="cardModal">
+  <div class="modal-content">
+    <button class="close-btn" id="cardClose">✖</button>
+    <h3>Card Payment</h3>
+    <form id="cardForm">
+      <input type="text" id="cardNumber" placeholder="Card Number" required maxlength="19" />
+      <input type="text" id="cardExpiry" placeholder="Expiry (MM/YY)" required maxlength="5" />
+      <input type="password" id="cardCvv" placeholder="CVV" required maxlength="4" />
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:8px;">
+        <button type="submit" class="confirm-btn">Pay</button>
+        <button type="button" class="cancel-btn" id="cardBackBtn">Back</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
-// Show popup notifications
-function showAlert(msg, category){
-    const alertContainer = document.getElementById("alertContainer");
-    const alertBox = document.createElement("div");
-    alertBox.className = `alert ${category}`;
-    alertBox.innerText = msg;
-    alertContainer.appendChild(alertBox);
-
-    alertBox.classList.add('slide-in');
-    setTimeout(() => {
-        alertBox.classList.add('fade-out');
-        setTimeout(() => alertBox.remove(), 1000);
-    }, 3000);
+/* ---------- helpers ---------- */
+function showAlert(msg, type="success", timeout=3000){
+  const c = document.getElementById('alertContainer');
+  const el = document.createElement('div');
+  el.className = 'alert ' + (type === 'error' ? 'error' : 'success');
+  el.innerText = msg;
+  c.appendChild(el);
+  setTimeout(()=> el.remove(), timeout);
 }
 
-// Modal Handling
-const checkoutBtn = document.getElementById("checkoutBtn");
-const modal = document.getElementById("checkoutModal");
-const closeModal = document.getElementById("closeModal");
+/* ---------- modal refs ---------- */
+const checkoutBtn = document.getElementById('checkoutBtn');
 
-// Click checkout → check stock
-checkoutBtn.onclick = async () => {
-    const res = await fetch("/check-stock", { method: "POST" });
+const addressModal = document.getElementById('addressModal');
+const paymentChoiceModal = document.getElementById('paymentChoiceModal');
+const upiModal = document.getElementById('upiModal');
+const cardModal = document.getElementById('cardModal');
+
+/* open checkout -> check stock */
+checkoutBtn && checkoutBtn.addEventListener('click', async () => {
+  try {
+    const res = await fetch('/check-stock', { method:'POST' });
     const data = await res.json();
-
     if(data.success){
-        modal.style.display = "flex";
+      addressModal.classList.add('show');
     } else {
-        // Show all out-of-stock items
-        showAlert("Out of stock: " + data.out_of_stock.join(", "), "error");
+      showAlert("Out of stock: " + (data.out_of_stock || []).join(', '), "error");
     }
-};
+  } catch(err){
+    console.error(err);
+    showAlert("Network error checking stock", "error");
+  }
+});
 
-closeModal.onclick = () => modal.style.display = "none";
+/* close helpers */
+function closeAll(){
+  addressModal.classList.remove('show');
+  paymentChoiceModal.classList.remove('show');
+  upiModal.classList.remove('show');
+  cardModal.classList.remove('show');
+}
 
-// Modal form submission
-document.getElementById("checkoutForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
+/* wire close buttons */
+document.getElementById('addressClose').addEventListener('click', closeAll);
+document.getElementById('addressCancel').addEventListener('click', closeAll);
+document.getElementById('payChoiceClose').addEventListener('click', closeAll);
+document.getElementById('upiClose').addEventListener('click', closeAll);
+document.getElementById('cardClose').addEventListener('click', closeAll);
 
-    const res = await fetch("/checkout", {
-        method: "POST",
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(data)
+/* ADDRESS FORM -> save locally (not DB) then open payment choices */
+document.getElementById('addressForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const address = document.getElementById('addressInput').value.trim();
+  const phone = document.getElementById('phoneInput').value.trim();
+  if(!address || !phone){ showAlert("Address and phone required", "error"); return; }
+
+  // Save into sessionStorage so UPI/Card handlers can read
+  sessionStorage.setItem('checkout_address', address);
+  sessionStorage.setItem('checkout_phone', phone);
+
+  addressModal.classList.remove('show');
+  paymentChoiceModal.classList.add('show');
+});
+
+/* BACK from choices -> address */
+document.getElementById('backToAddress').addEventListener('click', ()=>{
+  paymentChoiceModal.classList.remove('show');
+  addressModal.classList.add('show');
+});
+
+/* OPEN UPI - show QR */
+document.getElementById('payUPI').addEventListener('click', ()=>{
+  paymentChoiceModal.classList.remove('show');
+  upiModal.classList.add('show');
+});
+
+/* OPEN CARD */
+document.getElementById('payCARD').addEventListener('click', ()=>{
+  paymentChoiceModal.classList.remove('show');
+  cardModal.classList.add('show');
+});
+
+/* UPI: Paid button -> call /final-pay with payment_method "UPI" */
+document.getElementById('upiPaidBtn').addEventListener('click', async ()=>{
+  const address = sessionStorage.getItem('checkout_address');
+  const phone = sessionStorage.getItem('checkout_phone');
+  if(!address || !phone){ showAlert("Address/phone missing", "error"); return; }
+
+  try {
+    const res = await fetch('/final-pay', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ address, phone, payment_method: 'UPI' })
     });
-    const result = await res.json();
+    const json = await res.json();
+    if(json.success){
+      showAlert("Payment successful", "success");
+      closeAll();
+      setTimeout(()=> window.location.href = '/user-dashboard', 1200);
+    } else {
+      showAlert(json.msg || "Payment failed", "error");
+    }
+  } catch(err){
+    console.error(err);
+    showAlert("Network/server error", "error");
+  }
+});
 
-    showAlert(result.msg, result.success ? "success" : "error");
-    if(result.success) setTimeout(() => window.location.href = "/user-dashboard", 1800);
+/* CARD: submit card form -> call /final-pay with payment_method "CARD" */
+document.getElementById('cardForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  // Basic client-side validation (do not rely on this for real payments)
+  const cardNum = document.getElementById('cardNumber').value.replace(/\s+/g,'');
+  const exp = document.getElementById('cardExpiry').value.trim();
+  const cvv = document.getElementById('cardCvv').value.trim();
+  if(cardNum.length < 12 || cvv.length < 3 || !exp){ showAlert("Enter valid card details", "error"); return; }
+
+  const address = sessionStorage.getItem('checkout_address');
+  const phone = sessionStorage.getItem('checkout_phone');
+  if(!address || !phone){ showAlert("Address/phone missing", "error"); return; }
+
+  try {
+    const res = await fetch('/final-pay', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        address, phone, payment_method: 'CARD',
+        card: { number: cardNum, expiry: exp, cvv: cvv } // we are NOT processing real card here
+      })
+    });
+    const json = await res.json();
+    if(json.success){
+      showAlert("Payment successful", "success");
+      closeAll();
+      setTimeout(()=> window.location.href = '/user-dashboard', 1200);
+    } else {
+      showAlert(json.msg || "Payment failed", "error");
+    }
+  } catch(err){
+    console.error(err);
+    showAlert("Network/server error", "error");
+  }
+});
+
+/* BACK from UPI/CARD modals */
+document.getElementById('upiBackBtn').addEventListener('click', ()=>{
+  upiModal.classList.remove('show');
+  paymentChoiceModal.classList.add('show');
+});
+document.getElementById('cardBackBtn').addEventListener('click', ()=>{
+  cardModal.classList.remove('show');
+  paymentChoiceModal.classList.add('show');
+});
+
+/* Add minimal input masks (optional) */
+document.getElementById('cardNumber')?.addEventListener('input', (e)=>{
+  let v = e.target.value.replace(/\D/g,'').slice(0,16);
+  e.target.value = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+});
+document.getElementById('cardExpiry')?.addEventListener('input', (e)=>{
+  let v = e.target.value.replace(/\D/g,'').slice(0,4);
+  if(v.length>2) v = v.slice(0,2) + '/' + v.slice(2);
+  e.target.value = v;
 });
 </script>
-
 </body>
 </html>

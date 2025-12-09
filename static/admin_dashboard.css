@@ -218,3 +218,17 @@ body {
     backface-visibility: hidden;
     z-index: 2;
 }
+
+.view-orders-btn {
+    background: #ae77fa;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.view-orders-btn:hover {
+    background: #8c64d9;
+}
